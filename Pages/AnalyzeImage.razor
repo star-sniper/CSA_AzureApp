@@ -1,0 +1,115 @@
+﻿@page "/analyze"
+@using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+@using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models
+@using System.Net.Http.Headers;
+@using CSA_AzureApp.Helper;
+@inject IJSRuntime JSRuntime
+<PageTitle>Analyze Image</PageTitle>
+<link href="css/custom.css" rel="stylesheet" />
+
+<div class="container text-center">
+    <ErrorMessage ErrorMessage="errorText" />
+    <h1 class="mt-3">Image Analyzer</h1>
+
+    <InputFile OnChange="HandleFileSelected" id="inputFl" style="display: none" />
+    <label class="btn btn-secondary mt-3" for="inputFl">Choose an image to analyze</label>
+
+    @if (base64image != null)
+    {
+        <br />
+        <img src="@base64image" class="img-fluid mt-3" alt="Uploaded Image" />
+    }
+
+    @if (imageAnalysis != null)
+    {
+        <div class="alert alert-info mt-3">
+            <h4>Tags</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tag in imageAnalysis.Tags)
+                    {
+                        <tr>
+                            <td>@CapitalizeFirstLetter(tag.Name)</td>
+                            <td>@String.Format("{0:0.00}%", tag.Confidence * 100)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <h2 class="mt-3">@CapitalizeFirstLetter(imageAnalysis.Description.Captions.FirstOrDefault().Text)</h2>
+        </div>
+    }
+</div>
+
+
+@code {
+    [Inject]
+    private IImageAnalysisService ImageAnalysisService { get; set; }
+    string base64image = null;
+    ImageAnalysis imageAnalysis;
+    private bool invalidImageDimensions = false;
+    private string errorText = string.Empty;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.GetMultipleFiles().FirstOrDefault();
+            if (file != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+
+                // Validate image format
+                string imageFormat = RazorPageHelper.DetermineImageFormat(file.Name);
+                if (string.IsNullOrEmpty(imageFormat))
+                {
+                    RazorPageHelper.ShowError(JSRuntime, "Invalid image format. Supported formats: JPG, JPEG, PNG, GIF, BMP, WEBP, ICO, TIFF, MPO");
+                    return; // Display an error to the user
+                }
+
+                // Validate file size
+                if (memoryStream.Length > 20 * 1024 * 1024) // 20 MB
+                {
+                    RazorPageHelper.ShowError(JSRuntime, "File size exceeds the maximum allowed (20 MB).");
+                    return; // Display an error to the user
+                }
+
+                base64image = $"data:{imageFormat};base64,{Convert.ToBase64String(memoryStream.ToArray())}";
+
+                if (!invalidImageDimensions)
+                {
+                    // Call the image analysis service
+                    imageAnalysis = await ImageAnalysisService.AnalyzeImageAsync(memoryStream, imageFormat);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            RazorPageHelper.ShowError(JSRuntime, $"An error occurred: {ex.Message}");
+        }
+    }
+
+    private string CapitalizeFirstLetter(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        string[] words = input.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1).Trim();
+        }
+
+        return string.Join(", ", words);
+    }
+
+}

@@ -1,0 +1,84 @@
+﻿@page "/extract"
+@using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
+@using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models
+@using System.Net.Http.Headers;
+@using CSA_AzureApp.Helper;
+@inject IJSRuntime JSRuntime
+<PageTitle>Extract Text</PageTitle>
+<link href="css/custom.css" rel="stylesheet" />
+
+<div class="container text-center">
+    <div class="error-message">
+        <ErrorMessage ErrorMessage="errorText" />
+    </div>
+
+    <h1 class="mt-3">Image Text Extractor</h1>
+
+    <div class="file-upload">
+        <InputFile OnChange="HandleFileSelected" id="inputFl" style="display: none" />
+        <label class="btn btn-secondary" for="inputFl">Choose an image to extract text</label>
+    </div>
+
+    @if (base64image != null)
+    {
+        <div class="uploaded-image">
+            <img src="@base64image" alt="Uploaded Image" />
+        </div>
+    }
+
+    @if (!String.IsNullOrEmpty(extractedText))
+    {
+        <div class="extracted-text mt-3">
+            <p>@extractedText</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Inject]
+    private IExtractTextService ExtractTextService { get; set; }
+    string base64image = null;
+    private bool invalidImageDimensions = false;
+    private string errorText = string.Empty;
+    private string extractedText = string.Empty;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.GetMultipleFiles().FirstOrDefault();
+            if (file != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+
+                // Validate image format
+                string imageFormat = RazorPageHelper.DetermineImageFormat(file.Name);
+                if (string.IsNullOrEmpty(imageFormat))
+                {
+                    RazorPageHelper.ShowError(JSRuntime, "Invalid image format. Supported formats: JPG, JPEG, PNG, GIF, BMP, WEBP, ICO, TIFF, MPO");
+                    return; // Display an error to the user
+                }
+
+                // Validate file size
+                if (memoryStream.Length > 20 * 1024 * 1024) // 20 MB
+                {
+                    RazorPageHelper.ShowError(JSRuntime, "File size exceeds the maximum allowed (20 MB).");
+                    return; // Display an error to the user
+                }
+
+                base64image = $"data:{imageFormat};base64,{Convert.ToBase64String(memoryStream.ToArray())}";
+
+                if (!invalidImageDimensions)
+                {
+                    // Call the image analysis service
+                    extractedText = await ExtractTextService.ExtractTextAsync(memoryStream, imageFormat);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            RazorPageHelper.ShowError(JSRuntime, $"An error occurred: {ex.Message}");
+        }
+    }
+}

@@ -1,0 +1,26 @@
+﻿/* styles.css */
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.alert {
+    border: 1px solid;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Additional styles can be added here */
