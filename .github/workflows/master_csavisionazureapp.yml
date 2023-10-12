@@ -23,6 +23,9 @@ jobs:
           include-prerelease: true
 
       - name: Set Environment Variables for Build
+        env:
+          COMPUTERVISIONAPIKEY: ${{ secrets.COMPUTERVISIONAPIKEY }}
+          COMPUTERVISIONENDPOINT: ${{ secrets.COMPUTERVISIONENDPOINT }}
         run: |
           echo "COMPUTERVISIONAPIKEY=$COMPUTERVISIONAPIKEY" >> $GITHUB_ENV
           echo "COMPUTERVISIONENDPOINT=$COMPUTERVISIONENDPOINT" >> $GITHUB_ENV
