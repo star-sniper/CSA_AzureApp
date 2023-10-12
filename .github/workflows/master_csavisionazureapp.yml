@@ -24,15 +24,15 @@ jobs:
 
       - name: Set Environment Variables for Build
         env:
-          api-key: ${{ secrets.COMPUTERVISIONAPIKEY }}
+          api: ${{ secrets.COMPUTERVISIONAPIKEY }}
           endpoint: ${{ secrets.COMPUTERVISIONENDPOINT }}
         run: |
-          echo "COMPUTERVISIONAPIKEY=$api-key" >> $GITHUB_ENV
+          echo "COMPUTERVISIONAPIKEY=$api" >> $GITHUB_ENV
           echo "COMPUTERVISIONENDPOINT=$endpoint" >> $GITHUB_ENV
 
       - name: Debug Environment Variables in Build
         run: |
-          echo "COMPUTERVISIONAPIKEY = $api-key"
+          echo "COMPUTERVISIONAPIKEY = $api"
           echo "COMPUTERVISIONENDPOINT = $endpoint"
           
       - name: Build with dotnet
@@ -54,8 +54,8 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     env:
-      COMPUTERVISIONAPIKEY: ${{ secrets.COMPUTERVISIONAPIKEY }}
-      COMPUTERVISIONENDPOINT: ${{ secrets.COMPUTERVISIONENDPOINT }}
+      api: ${{ secrets.COMPUTERVISIONAPIKEY }}
+      endpoint: ${{ secrets.COMPUTERVISIONENDPOINT }}
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
@@ -64,8 +64,8 @@ jobs:
       - name: Debug Environment Variables in .NET Application
         run: |
           echo "Setting debug environment variables in .NET application"
-          echo "COMPUTERVISIONAPIKEY = $COMPUTERVISIONAPIKEY"
-          echo "COMPUTERVISIONENDPOINT = $COMPUTERVISIONENDPOINT"
+          echo "api = $COMPUTERVISIONAPIKEY"
+          echo "endpoint = $COMPUTERVISIONENDPOINT"
           # Add the code to run your .NET application here
           # For example: dotnet run
 

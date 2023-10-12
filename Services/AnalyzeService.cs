@@ -26,8 +26,8 @@ public class ImageAnalysisService : IImageAnalysisService
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
         {
             // Production environment, read settings from GitHub Secrets
-            computerVisionApiKey = Environment.GetEnvironmentVariable("COMPUTERVISIONAPIKEY");
-            computerVisionEndpoint = Environment.GetEnvironmentVariable("COMPUTERVISIONENDPOINT");
+            computerVisionApiKey = Environment.GetEnvironmentVariable("api");
+            computerVisionEndpoint = Environment.GetEnvironmentVariable("endpoint");
         }
         else
         {
