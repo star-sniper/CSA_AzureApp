@@ -21,7 +21,7 @@ jobs:
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
-
+          
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
@@ -40,7 +40,9 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    env:
+      COMPUTERVISIONAPIKEY: ${{ secrets.COMPUTERVISIONAPIKEY }}
+      COMPUTERVISIONENDPOINT: ${{ secrets.COMPUTERVISIONENDPOINT }}
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v2

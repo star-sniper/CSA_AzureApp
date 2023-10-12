@@ -23,9 +23,18 @@ public class ExtractTextService : IExtractTextService
     public async Task<string> ExtractTextAsync(MemoryStream memoryStream, string imageFormat)
     {
         string extractedText = string.Empty;
-
+        string computerVisionEndpoint;
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+        {
+            // Production environment, read settings from GitHub Secrets
+            computerVisionEndpoint = Environment.GetEnvironmentVariable("COMPUTERVISIONENDPOINT");
+        }
+        else
+        {
+            // Local development environment, read settings from appsettings.json
+            computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
+        }
         // Your Azure Cognitive Services API key
-        var computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
         var uri = $"{computerVisionEndpoint}/vision/v3.1/ocr";
 
         byte[] byteData = memoryStream.ToArray();
