@@ -9,7 +9,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var configurationBuilder = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+    .AddJsonFile("wwwroot/appsettings.json", optional: true, reloadOnChange: true);
 
 var configuration = configurationBuilder.Build();
 
