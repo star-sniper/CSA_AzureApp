@@ -2,84 +2,74 @@
 using System.Text;
 using System.Text.Json;
 using CSA_AzureApp.Models;
-
-public interface IExtractTextService
+namespace CSA_AzureApp.Services
 {
-    Task<string> ExtractTextAsync(MemoryStream memoryStream, string imageFormat);
-}
-
-public class ExtractTextService : IExtractTextService
-{
-    private readonly IConfiguration _configuration;
-    private readonly HttpClient _httpClient;
-
-    public ExtractTextService(IConfiguration configuration)
+    public interface IExtractTextService
     {
-        _configuration = configuration;
-        _httpClient = new HttpClient();
-        _httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", _configuration["Azure:CognitiveServices:ComputerVisionApiKey"]);
+        Task<string> ExtractTextAsync(MemoryStream memoryStream, string imageFormat);
     }
 
-    public async Task<string> ExtractTextAsync(MemoryStream memoryStream, string imageFormat)
+    public class ExtractTextService : IExtractTextService
     {
-        string extractedText = string.Empty;
-        string computerVisionEndpoint;
-        computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
-/*
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+        private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
+
+        public ExtractTextService(IConfiguration configuration)
         {
-            // Production environment, read settings from GitHub Secrets
-            computerVisionEndpoint = Environment.GetEnvironmentVariable("COMPUTERVISIONENDPOINT");
+            _configuration = configuration;
+            _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", _configuration["Azure:CognitiveServices:ComputerVisionApiKey"]);
         }
-        else
+
+        public async Task<string> ExtractTextAsync(MemoryStream memoryStream, string imageFormat)
         {
-            // Local development environment, read settings from appsettings.json
-        }
-        */// Your Azure Cognitive Services API key
-        var uri = $"{computerVisionEndpoint}/vision/v3.1/ocr";
+            string extractedText = string.Empty;
+            string computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
+            var uri = $"{computerVisionEndpoint}/vision/v3.1/ocr";
 
-        byte[] byteData = memoryStream.ToArray();
+            byte[] byteData = memoryStream.ToArray();
 
-        using (var content = new ByteArrayContent(byteData))
-        {
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-            HttpResponseMessage response = await _httpClient.PostAsync(uri, content);
-
-            if (response.IsSuccessStatusCode)
+            using (var content = new ByteArrayContent(byteData))
             {
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-                var textAnalysis = JsonSerializer.Deserialize<TextAnalysis>(jsonResponse, new JsonSerializerOptions
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                HttpResponseMessage response = await _httpClient.PostAsync(uri, content);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    PropertyNameCaseInsensitive = true
-                });
+                    string jsonResponse = await response.Content.ReadAsStringAsync();
+                    var textAnalysis = JsonSerializer.Deserialize<TextAnalysis>(jsonResponse, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
 
-                extractedText = ProcessTextAnalysis(textAnalysis);
-            }
-            else
-            {
-                Console.WriteLine($"Error: {response.StatusCode}");
-            }
-        }
-
-        return extractedText;
-    }
-
-    private string ProcessTextAnalysis(TextAnalysis textAnalysis)
-    {
-        var extractedText = new StringBuilder();
-
-        foreach (Region region in textAnalysis.Regions)
-        {
-            foreach (Line line in region.Lines)
-            {
-                foreach (Word word in line.Words)
+                    extractedText = ProcessTextAnalysis(textAnalysis);
+                }
+                else
                 {
-                    extractedText.Append(" ").Append(word.Text);
+                    Console.WriteLine($"Error: {response.StatusCode}");
                 }
             }
+
+            return extractedText;
         }
 
-        return extractedText.ToString().Trim();
+        private string ProcessTextAnalysis(TextAnalysis textAnalysis)
+        {
+            var extractedText = new StringBuilder();
+
+            foreach (Region region in textAnalysis.Regions)
+            {
+                foreach (Line line in region.Lines)
+                {
+                    foreach (Word word in line.Words)
+                    {
+                        extractedText.Append(" ").Append(word.Text);
+                    }
+                }
+            }
+
+            return extractedText.ToString().Trim();
+        }
     }
 }

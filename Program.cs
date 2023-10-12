@@ -1,8 +1,7 @@
 using CSA_AzureApp;
+using CSA_AzureApp.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration; // Import the IConfiguration namespace
-using System.Net.Http; // Import the HttpClient namespace
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
