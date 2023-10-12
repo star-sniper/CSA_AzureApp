@@ -24,6 +24,8 @@ public class ExtractTextService : IExtractTextService
     {
         string extractedText = string.Empty;
         string computerVisionEndpoint;
+        computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
+/*
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
         {
             // Production environment, read settings from GitHub Secrets
@@ -32,9 +34,8 @@ public class ExtractTextService : IExtractTextService
         else
         {
             // Local development environment, read settings from appsettings.json
-            computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
         }
-        // Your Azure Cognitive Services API key
+        */// Your Azure Cognitive Services API key
         var uri = $"{computerVisionEndpoint}/vision/v3.1/ocr";
 
         byte[] byteData = memoryStream.ToArray();

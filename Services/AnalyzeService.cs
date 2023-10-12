@@ -22,20 +22,21 @@ public class ImageAnalysisService : IImageAnalysisService
         var analysisModel = new ImageAnalysis();
         string computerVisionApiKey;
         string computerVisionEndpoint;
-
+        computerVisionApiKey = _configuration["Azure:CognitiveServices:ComputerVisionApiKey"];
+        computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
+/*
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
         {
             // Production environment, read settings from GitHub Secrets
-            computerVisionApiKey = Environment.GetEnvironmentVariable("api");
-            computerVisionEndpoint = Environment.GetEnvironmentVariable("endpoint");
+            computerVisionApiKey = Environment.GetEnvironmentVariable("ComputerVisionApiKey");
+            computerVisionEndpoint = Environment.GetEnvironmentVariable("ComputerVisionEndpoint");
         }
         else
         {
             // Local development environment, read settings from appsettings.json
-            computerVisionApiKey = _configuration["Azure:CognitiveServices:ComputerVisionApiKey"];
-            computerVisionEndpoint = _configuration["Azure:CognitiveServices:ComputerVisionEndpoint"];
+          
         }
-
+*/
        /* // Your Azure Cognitive Services API key and endpoint
         string computerVisionApiKey = Environment.GetEnvironmentVariable("COMPUTERVISIONAPIKEY");//_configuration["Azure:CognitiveServices:ComputerVisionApiKey"];
         string computerVisionEndpoint = Environment.GetEnvironmentVariable("COMPUTERVISIONENDPOINT");//_configuration["Azure:CognitiveServices:ComputerVisionApiKey"];

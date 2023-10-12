@@ -21,19 +21,6 @@ jobs:
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
-
-      - name: Set Environment Variables for Build
-        env:
-          api: ${{ secrets.COMPUTERVISIONAPIKEY }}
-          endpoint: ${{ secrets.COMPUTERVISIONENDPOINT }}
-        run: |
-          echo "COMPUTERVISIONAPIKEY=$api" >> $GITHUB_ENV
-          echo "COMPUTERVISIONENDPOINT=$endpoint" >> $GITHUB_ENV
-
-      - name: Debug Environment Variables in Build
-        run: |
-          echo "COMPUTERVISIONAPIKEY = $api"
-          echo "COMPUTERVISIONENDPOINT = $endpoint"
           
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -61,13 +48,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: .net-app
-      - name: Debug Environment Variables in .NET Application
-        run: |
-          echo "Setting debug environment variables in .NET application"
-          echo "api = $COMPUTERVISIONAPIKEY"
-          echo "endpoint = $COMPUTERVISIONENDPOINT"
-          # Add the code to run your .NET application here
-          # For example: dotnet run
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
