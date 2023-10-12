@@ -21,6 +21,16 @@ jobs:
         with:
           dotnet-version: '6.0.x'
           include-prerelease: true
+
+      - name: Set Environment Variables for Build
+        run: |
+          echo "COMPUTERVISIONAPIKEY=$COMPUTERVISIONAPIKEY" >> $GITHUB_ENV
+          echo "COMPUTERVISIONENDPOINT=$COMPUTERVISIONENDPOINT" >> $GITHUB_ENV
+
+      - name: Debug Environment Variables in Build
+        run: |
+          echo "COMPUTERVISIONAPIKEY = $COMPUTERVISIONAPIKEY"
+          echo "COMPUTERVISIONENDPOINT = $COMPUTERVISIONENDPOINT"
           
       - name: Build with dotnet
         run: dotnet build --configuration Release
