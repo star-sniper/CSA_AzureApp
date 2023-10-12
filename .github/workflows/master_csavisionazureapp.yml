@@ -24,16 +24,16 @@ jobs:
 
       - name: Set Environment Variables for Build
         env:
-          COMPUTERVISIONAPIKEY: ${{ secrets.COMPUTERVISIONAPIKEY }}
-          COMPUTERVISIONENDPOINT: ${{ secrets.COMPUTERVISIONENDPOINT }}
+          api-key: ${{ secrets.COMPUTERVISIONAPIKEY }}
+          endpoint: ${{ secrets.COMPUTERVISIONENDPOINT }}
         run: |
-          echo "COMPUTERVISIONAPIKEY=$COMPUTERVISIONAPIKEY" >> $GITHUB_ENV
-          echo "COMPUTERVISIONENDPOINT=$COMPUTERVISIONENDPOINT" >> $GITHUB_ENV
+          echo "COMPUTERVISIONAPIKEY=$api-key" >> $GITHUB_ENV
+          echo "COMPUTERVISIONENDPOINT=$endpoint" >> $GITHUB_ENV
 
       - name: Debug Environment Variables in Build
         run: |
-          echo "COMPUTERVISIONAPIKEY = $COMPUTERVISIONAPIKEY"
-          echo "COMPUTERVISIONENDPOINT = $COMPUTERVISIONENDPOINT"
+          echo "COMPUTERVISIONAPIKEY = $api-key"
+          echo "COMPUTERVISIONENDPOINT = $endpoint"
           
       - name: Build with dotnet
         run: dotnet build --configuration Release
